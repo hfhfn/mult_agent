@@ -6,6 +6,10 @@ from langchain.agents import create_agent
 from langchain_core.tools import tool
 from langchain_community.chat_models import ChatTongyi
 from langgraph.checkpoint.memory import MemorySaver
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 print("\n" + "=" * 60)
 print("案例4: 带记忆的持久化Agent - V1.0")
@@ -55,7 +59,7 @@ def translate_text(text: str, target_lang: str) -> str:
 llm = ChatTongyi(
     model="qwen-plus",
     temperature=0.7,
-    dashscope_api_key=""
+    dashscope_api_key=os.getenv("DASHSCOPE_API_KEY", "")
 )
 
 # 创建内存存储

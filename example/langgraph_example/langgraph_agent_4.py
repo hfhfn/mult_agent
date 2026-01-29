@@ -13,9 +13,13 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from langgraph.prebuilt import create_react_agent
 from langchain_community.chat_models import ChatTongyi
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 # 设置API Key
-os.environ["DASHSCOPE_API_KEY"] = ""
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
 
 def create_qwen_model(model_name="qwen-plus", temperature=0.7):
     """创建Qwen模型"""

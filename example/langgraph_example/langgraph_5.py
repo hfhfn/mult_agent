@@ -9,13 +9,17 @@ from langgraph.graph import StateGraph, START, END, MessagesState
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_community.llms import Tongyi
 from langchain_core.tools import tool
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 import operator
 
 print("\n" + "=" * 60)
 print("案例6: 智能编程助手 - 完整系统")
 print("=" * 60)
 
-os.environ["DASHSCOPE_API_KEY"] = ""
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
 
 # 1. 初始化不同温度的模型
 analyzer_llm = Tongyi(model="qwen-plus", temperature=0.3)  # 分析器

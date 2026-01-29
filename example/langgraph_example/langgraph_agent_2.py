@@ -11,6 +11,10 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.tools import tool
 from langchain_community.chat_models import ChatTongyi
 import operator
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 print("\n" + "=" * 60)
 print("案例3: 从头构建ReAct Agent - V1.0")
@@ -107,7 +111,7 @@ tool_node = ToolNode(tools)
 llm = ChatTongyi(
     model="qwen-plus",
     temperature=0.7,
-    dashscope_api_key=""
+    dashscope_api_key=os.getenv("DASHSCOPE_API_KEY", "")
 )
 
 # 绑定工具到模型
