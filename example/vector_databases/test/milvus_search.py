@@ -6,6 +6,10 @@ import logging
 import os
 from typing import List, Dict, Optional, Tuple, Any, Union
 from concurrent.futures import ThreadPoolExecutor
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 from pymilvus import connections, Collection, utility
 from fastapi import HTTPException

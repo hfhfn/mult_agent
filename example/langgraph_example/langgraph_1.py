@@ -14,13 +14,17 @@ from langgraph.graph import StateGraph, START, END, MessagesState
 from langgraph.graph.message import add_messages
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_community.llms import Tongyi
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 
 print("=" * 60)
 print("案例1: 带记忆的智能对话机器人")
 print("=" * 60)
 
 # 1. 设置API Key
-os.environ["DASHSCOPE_API_KEY"] = "YOUR_API_KEY_HERE"  # 已经为您移除硬编码 Key，请将其存入 .env 文件或直接替换
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "YOUR_API_KEY_HERE")
 
 # 2. 初始化Qwen模型
 llm = Tongyi(

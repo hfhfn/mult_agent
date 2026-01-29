@@ -4,6 +4,10 @@
 """
 import os  # 用于文件操作和环境变量处理
 from fastapi import FastAPI
+from dotenv import load_dotenv
+
+# 加载环境变量
+load_dotenv()
 # from langchain.document_loaders import TextLoader  # 加载文本文件
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import CharacterTextSplitter  # 用于将文档分割为小块
@@ -297,5 +301,5 @@ if __name__ == '__main__':
         port="19530",  # Milvus数据库的端口
         collection_name="text_collection_2",  # 集合名称
         embedding_model="text-embedding-v1",  # 使用的嵌入模型
-        dashscope_api_key="YOUR_API_KEY_HERE"  # DashScope API 密钥
+        dashscope_api_key=os.getenv("DASHSCOPE_API_KEY", "YOUR_API_KEY_HERE")  # 从环境变量获取 Key
     )
