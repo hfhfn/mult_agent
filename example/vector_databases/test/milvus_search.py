@@ -29,6 +29,12 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+COHERE_API_KEY = os.getenv("COHERE_API_KEY", "")
+MILVUS_HOST = os.getenv("MILVUS_HOST", "localhost")
+MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
 """
 RAG优化方案参考：https://mp.weixin.qq.com/s/oOja2wXB-gUFt1X_xddtTw
 https://dashboard.cohere.com/api-keys
@@ -66,7 +72,7 @@ class KnowledgeBaseSearcher:
         # 初始化嵌入模型
         self.embeddings_model = DashScopeEmbeddings(
             model="text-embedding-v1",
-            dashscope_api_key=os.getenv("DASHSCOPE_API_KEY")
+            dashscope_api_key=DASHSCOPE_API_KEY
         )
         logger.info("Initialized DashScope embeddings model.")
 
@@ -74,7 +80,7 @@ class KnowledgeBaseSearcher:
         if self.reranker_enabled :
             try:
                 self.reranker = CohereRerank(
-                    cohere_api_key=os.getenv("COHERE_API_KEY"),
+                    cohere_api_key=COHERE_API_KEY,
                     top_n=3  # 重排序后保留的文档数量
                 )
                 logger.info("Initialized Cohere reranker.")
@@ -90,10 +96,8 @@ class KnowledgeBaseSearcher:
 
         # 连接到 Milvus 数据库
         try:
-            host = os.getenv("MILVUS_HOST")
-            port = os.getenv("MILVUS_PORT")
-            connections.connect("default", host=host, port=port)
-            logger.info(f"Connected to Milvus database at {host}:{port}.")
+            connections.connect("default", host=MILVUS_HOST, port=MILVUS_PORT)
+            logger.info(f"Connected to Milvus database at {MILVUS_HOST}:{MILVUS_PORT}.")
         except Exception as e:
             logger.error(f"Failed to connect to Milvus: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Failed to connect to Milvus: {str(e)}")

@@ -42,6 +42,13 @@ from pymilvus import utility, connections, Collection
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# --- 环境配置 ---
+MILVUS_HOST = os.getenv("MILVUS_HOST", "127.0.0.1")
+MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "agent_rag")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v1")
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
 class VectorDatabaseManager:
     """向量数据库管理器 (Milvus后端)"""
     
@@ -65,12 +72,12 @@ class VectorDatabaseManager:
             chunk_size: 文档切分块大小
             chunk_overlap: 文档切分重叠大小
         """
-        self.milvus_host = milvus_host or os.getenv("MILVUS_HOST", "127.0.0.1")
+        self.milvus_host = milvus_host or MILVUS_HOST
         # Ensure port is a string as pymilvus might expect it, or handle int gracefully
-        self.milvus_port = str(milvus_port or os.getenv("MILVUS_PORT", "19530"))
-        self.collection_name = collection_name or os.getenv("COLLECTION_NAME", "agent_rag")
-        self.embedding_model = embedding_model or os.getenv("EMBEDDING_MODEL", "text-embedding-v1")
-        self.dashscope_api_key = dashscope_api_key or os.getenv("DASHSCOPE_API_KEY", "")
+        self.milvus_port = str(milvus_port or MILVUS_PORT)
+        self.collection_name = collection_name or COLLECTION_NAME
+        self.embedding_model = embedding_model or EMBEDDING_MODEL
+        self.dashscope_api_key = dashscope_api_key or DASHSCOPE_API_KEY
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
         
@@ -98,8 +105,8 @@ class VectorDatabaseManager:
         try:
             # 确保 API Key 存在
             if not self.dashscope_api_key:
-                 logger.warning("未提供 DashScope API Key，将尝试从环境变量获取")
-                 self.dashscope_api_key = os.environ.get("DASHSCOPE_API_KEY", "")
+                 logger.warning("未提供 DashScope API Key，将尝试从模块常量获取")
+                 self.dashscope_api_key = DASHSCOPE_API_KEY
 
             self.embeddings = DashScopeEmbeddings(
                 model=self.embedding_model,

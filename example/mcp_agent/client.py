@@ -20,6 +20,13 @@ from langchain_community.chat_models import ChatTongyi
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 
+# 加载环境变量
+load_dotenv()
+
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+MODEL_NAME = os.getenv("MODEL", "qwen-plus")
+
 # 设置记忆存储
 checkpointer = InMemorySaver()
 
@@ -42,9 +49,8 @@ class Configuration:
     """读取 .env 与 servers_config.json"""
 
     def __init__(self) -> None:
-        load_dotenv()
-        self.api_key: str = os.getenv("DASHSCOPE_API_KEY") or ""
-        self.model: str = os.getenv("MODEL") or "qwen-plus"
+        self.api_key: str = DASHSCOPE_API_KEY
+        self.model: str = MODEL_NAME
         if not self.api_key:
             raise ValueError("❌ 未找到 DASHSCOPE_API_KEY，请在 .env 中配置")
 

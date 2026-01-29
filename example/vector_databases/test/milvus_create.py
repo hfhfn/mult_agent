@@ -24,6 +24,13 @@ from pymilvus import (
 )
 from services.knowledge_service import KnowledgeService
 
+# --- 配置参数 ---
+MILVUS_HOST = os.getenv("MILVUS_HOST", "8.138.133.120")
+MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "text_collection_2")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-v1")
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "YOUR_API_KEY_HERE")
+
 
 # 定义 MilvusManager 类，用于处理与 Milvus 向量数据库的交互
 class MilvusManager:
@@ -297,9 +304,9 @@ if __name__ == '__main__':
 
     # 初始化 MilvusManager 管理对象
     milvus_manager = MilvusManager(
-        host="8.138.133.120",  # Milvus数据库的主机地址
-        port="19530",  # Milvus数据库的端口
-        collection_name="text_collection_2",  # 集合名称
-        embedding_model="text-embedding-v1",  # 使用的嵌入模型
-        dashscope_api_key=os.getenv("DASHSCOPE_API_KEY", "YOUR_API_KEY_HERE")  # 从环境变量获取 Key
+        host=MILVUS_HOST,
+        port=MILVUS_PORT,
+        collection_name=COLLECTION_NAME,
+        embedding_model=EMBEDDING_MODEL,
+        dashscope_api_key=DASHSCOPE_API_KEY
     )

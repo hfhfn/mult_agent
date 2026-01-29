@@ -14,6 +14,11 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent / '.env'
 load_dotenv(dotenv_path=env_path)
 
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+LLM_BASE_URL = os.getenv("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+LLM_MODEL = os.getenv("LLM_MODEL", "qwen-plus")
+
 # LangChain imports
 from langchain_core.documents import Document
 
@@ -181,10 +186,10 @@ class VectorRetriever:
             from openai import OpenAI
             import os
             
-            # 使用与 query_system.py 相同的配置
-            api_key = os.environ.get("DASHSCOPE_API_KEY", "")
-            base_url = os.environ.get("LLM_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
-            model_name = os.environ.get("LLM_MODEL", "qwen-plus")
+            # 使用模块顶层的配置
+            api_key = DASHSCOPE_API_KEY
+            base_url = LLM_BASE_URL
+            model_name = LLM_MODEL
             
             client = OpenAI(api_key=api_key, base_url=base_url)
             

@@ -19,13 +19,17 @@ from langchain_core.messages import HumanMessage
 # 1. 配置与初始化
 load_dotenv()
 
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+MODEL_NAME = os.getenv("MODEL", "qwen-plus")
+
 # 配置日志
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 class Configuration:
     def __init__(self) -> None:
-        self.api_key: str = os.getenv("DASHSCOPE_API_KEY") or ""
-        self.model: str = os.getenv("MODEL") or "qwen-plus"
+        self.api_key: str = DASHSCOPE_API_KEY
+        self.model: str = MODEL_NAME
         if not self.api_key:
             logging.warning("⚠️ 未找到 DASHSCOPE_API_KEY")
 
