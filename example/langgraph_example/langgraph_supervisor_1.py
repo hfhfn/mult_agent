@@ -17,14 +17,15 @@ from dotenv import load_dotenv
 # 加载环境变量
 load_dotenv()
 
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
+# 设置API Key到全局环境
+os.environ["DASHSCOPE_API_KEY"] = DASHSCOPE_API_KEY
+
 print("="*70)
 print("Supervisor模式：智能客户服务系统")
 print("="*70)
-
-# ============================================
-# 第一步：设置环境
-# ============================================
-os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
 
 # ============================================
 # 第二步：定义State

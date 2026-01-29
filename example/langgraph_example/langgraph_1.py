@@ -19,12 +19,15 @@ from dotenv import load_dotenv
 # 加载环境变量
 load_dotenv()
 
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "YOUR_API_KEY_HERE")
+
+# 设置API Key到全局环境（部分LangChain组件可能需要）
+os.environ["DASHSCOPE_API_KEY"] = DASHSCOPE_API_KEY
+
 print("=" * 60)
 print("案例1: 带记忆的智能对话机器人")
 print("=" * 60)
-
-# 1. 设置API Key
-os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "YOUR_API_KEY_HERE")
 
 # 2. 初始化Qwen模型
 llm = Tongyi(

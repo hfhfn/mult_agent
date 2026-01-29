@@ -9,7 +9,7 @@
 
       <div class="sidebar-content">
         <div class="section-title">知识库设置</div>
-        
+
         <div class="upload-box">
           <el-upload
             class="upload-dragger"
@@ -32,9 +32,9 @@
 
         <div class="form-group">
           <label>集合名称</label>
-          <el-input 
-            v-model="collectionName" 
-            placeholder="例如: agent_rag" 
+          <el-input
+            v-model="collectionName"
+            placeholder="例如: agent_rag"
             class="custom-input"
           >
             <template #prefix>
@@ -43,13 +43,13 @@
           </el-input>
         </div>
 
-        <el-button 
-          type="primary" 
-          class="action-btn upload-btn" 
-          :loading="uploading" 
+        <el-button
+          type="primary"
+          class="action-btn upload-btn"
+          :loading="uploading"
           @click="submitUpload"
         >
-          {{ uploading ? '正在解析入库...' : '立即解析入库' }}
+          {{ uploading ? "正在解析入库..." : "立即解析入库" }}
         </el-button>
 
         <div v-if="uploadSuccess" class="success-tip">
@@ -75,7 +75,12 @@
           </span>
         </div>
         <div class="header-actions">
-          <el-button circle icon="Delete" @click="clearHistory" title="清空对话" />
+          <el-button
+            circle
+            icon="Delete"
+            @click="clearHistory"
+            title="清空对话"
+          />
         </div>
       </header>
 
@@ -102,29 +107,44 @@
         </div>
 
         <transition-group name="message-fade">
-          <div 
-            v-for="(msg, index) in messages" 
-            :key="index" 
+          <div
+            v-for="(msg, index) in messages"
+            :key="index"
             :class="['message-row', msg.role]"
           >
             <div class="avatar">
-              <el-avatar :size="40" :icon="msg.role === 'user' ? User : Service" :class="msg.role" />
+              <el-avatar
+                :size="40"
+                :icon="msg.role === 'user' ? User : Service"
+                :class="msg.role"
+              />
             </div>
             <div class="message-content">
               <div class="bubble" v-html="renderMarkdown(msg.content)"></div>
-              
+
               <!-- 引用来源卡片 -->
-              <div v-if="msg.sources && msg.sources.length > 0" class="sources-card">
+              <div
+                v-if="msg.sources && msg.sources.length > 0"
+                class="sources-card"
+              >
                 <div class="sources-header" @click="toggleSources(index)">
                   <el-icon><CollectionTag /></el-icon>
                   <span>参考依据 ({{ msg.sources.length }})</span>
-                  <el-icon :class="['arrow', { rotated: msg.showSources }]"><ArrowDown /></el-icon>
+                  <el-icon :class="['arrow', { rotated: msg.showSources }]"
+                    ><ArrowDown
+                  /></el-icon>
                 </div>
                 <div v-show="msg.showSources" class="sources-list">
-                  <div v-for="(source, sIndex) in msg.sources" :key="sIndex" class="source-item">
+                  <div
+                    v-for="(source, sIndex) in msg.sources"
+                    :key="sIndex"
+                    class="source-item"
+                  >
                     <div class="source-meta">
                       <span class="index">#{{ sIndex + 1 }}</span>
-                      <span class="score">相似度: {{ (source.score * 100).toFixed(1) }}%</span>
+                      <span class="score"
+                        >相似度: {{ (source.score * 100).toFixed(1) }}%</span
+                      >
                     </div>
                     <div class="source-text">{{ source.content }}</div>
                   </div>
@@ -140,7 +160,8 @@
           </div>
           <div class="message-content">
             <div class="bubble thinking-bubble">
-              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="dot"></span><span class="dot"></span
+              ><span class="dot"></span>
             </div>
           </div>
         </div>
@@ -158,9 +179,9 @@
             class="chat-input"
             @keydown.enter.prevent="sendMessage"
           />
-          <el-button 
-            type="primary" 
-            circle 
+          <el-button
+            type="primary"
+            circle
             class="send-btn"
             :disabled="!inputQuery.trim() || thinking"
             @click="sendMessage"
@@ -177,140 +198,150 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
-import { 
-  UploadFilled, User, Service, Position, Collection, 
-  CircleCheckFilled, Delete, Document, Search, ChatLineRound,
-  CollectionTag, ArrowDown
-} from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
-import axios from 'axios'
-import MarkdownIt from 'markdown-it'
+import { ref, nextTick } from "vue";
+import {
+  UploadFilled,
+  User,
+  Service,
+  Position,
+  Collection,
+  CircleCheckFilled,
+  Delete,
+  Document,
+  Search,
+  ChatLineRound,
+  CollectionTag,
+  ArrowDown,
+} from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import MarkdownIt from "markdown-it";
 
-const md = new MarkdownIt({ html: true, breaks: true, linkify: true })
-const API_BASE = 'http://localhost:5000/api/vector'
+const md = new MarkdownIt({ html: true, breaks: true, linkify: true });
+const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://localhost:5000/api/vector";
 
 // State
-const collectionName = ref('agent_rag')
-const uploadRef = ref(null)
-const fileToUpload = ref(null)
-const uploading = ref(false)
-const uploadSuccess = ref(false)
+const collectionName = ref("agent_rag");
+const uploadRef = ref(null);
+const fileToUpload = ref(null);
+const uploading = ref(false);
+const uploadSuccess = ref(false);
 
-const inputQuery = ref('')
-const messages = ref([])
-const thinking = ref(false)
-const messagesRef = ref(null)
+const inputQuery = ref("");
+const messages = ref([]);
+const thinking = ref(false);
+const messagesRef = ref(null);
 
 // Markdown 渲染
 const renderMarkdown = (text) => {
-  return md.render(text || '')
-}
+  return md.render(text || "");
+};
 
 // Toggle Sources
 const toggleSources = (index) => {
-  const msg = messages.value[index]
-  msg.showSources = !msg.showSources
-}
+  const msg = messages.value[index];
+  msg.showSources = !msg.showSources;
+};
 
 // 清空历史
 const clearHistory = () => {
-  messages.value = []
-}
+  messages.value = [];
+};
 
 // File Upload Logic
 const handleFileChange = (file) => {
-  fileToUpload.value = file.raw
-  uploadSuccess.value = false
-}
+  fileToUpload.value = file.raw;
+  uploadSuccess.value = false;
+};
 
 const handleExceed = () => {
-  ElMessage.warning('每次仅支持上传一个文件，请移除旧文件后再试')
-}
+  ElMessage.warning("每次仅支持上传一个文件，请移除旧文件后再试");
+};
 
 const submitUpload = async () => {
   if (!fileToUpload.value) {
-    ElMessage.warning('请先选择文件')
-    return
+    ElMessage.warning("请先选择文件");
+    return;
   }
 
-  uploading.value = true
-  uploadSuccess.value = false
+  uploading.value = true;
+  uploadSuccess.value = false;
 
   try {
-    const formData = new FormData()
-    formData.append('file', fileToUpload.value)
-    formData.append('collection_name', collectionName.value)
-    
+    const formData = new FormData();
+    formData.append("file", fileToUpload.value);
+    formData.append("collection_name", collectionName.value);
+
     const response = await axios.post(`${API_BASE}/upload_file`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    })
+      headers: { "Content-Type": "multipart/form-data" },
+    });
 
     if (response.data.success) {
-      ElMessage.success('上传并入库成功！')
-      uploadSuccess.value = true
-      uploadRef.value.clearFiles()
-      fileToUpload.value = null
+      ElMessage.success("上传并入库成功！");
+      uploadSuccess.value = true;
+      uploadRef.value.clearFiles();
+      fileToUpload.value = null;
     }
   } catch (error) {
-    console.error(error)
-    ElMessage.error(error.response?.data?.message || '上传失败')
+    console.error(error);
+    ElMessage.error(error.response?.data?.message || "上传失败");
   } finally {
-    uploading.value = false
+    uploading.value = false;
   }
-}
+};
 
 // Chat Logic
 const sendMessage = async () => {
-  const query = inputQuery.value.trim()
-  if (!query || thinking.value) return
-  
+  const query = inputQuery.value.trim();
+  if (!query || thinking.value) return;
+
   messages.value.push({
-    role: 'user',
-    content: query
-  })
-  
-  inputQuery.value = ''
-  thinking.value = true
-  scrollToBottom()
+    role: "user",
+    content: query,
+  });
+
+  inputQuery.value = "";
+  thinking.value = true;
+  scrollToBottom();
 
   try {
     const response = await axios.post(`${API_BASE}/query`, {
       question: query,
-      collection_name: collectionName.value
-    })
+      collection_name: collectionName.value,
+    });
 
     if (response.data.success) {
       messages.value.push({
-        role: 'assistant',
+        role: "assistant",
         content: response.data.answer,
         sources: response.data.sources,
-        showSources: false // 默认折叠引用
-      })
+        showSources: false, // 默认折叠引用
+      });
     } else {
-       messages.value.push({
-        role: 'assistant',
-        content: '抱歉，我遇到了一些问题：' + response.data.message
-      })
+      messages.value.push({
+        role: "assistant",
+        content: "抱歉，我遇到了一些问题：" + response.data.message,
+      });
     }
   } catch (error) {
-     messages.value.push({
-        role: 'assistant',
-        content: '网络错误或服务不可用，请检查后端服务是否启动。'
-      })
+    messages.value.push({
+      role: "assistant",
+      content: "网络错误或服务不可用，请检查后端服务是否启动。",
+    });
   } finally {
-    thinking.value = false
-    scrollToBottom()
+    thinking.value = false;
+    scrollToBottom();
   }
-}
+};
 
 const scrollToBottom = () => {
   nextTick(() => {
     if (messagesRef.value) {
-      messagesRef.value.scrollTop = messagesRef.value.scrollHeight
+      messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
     }
-  })
-}
+  });
+};
 </script>
 
 <style scoped>
@@ -320,7 +351,7 @@ const scrollToBottom = () => {
   height: 100vh;
   width: 100vw;
   background-color: #f0f2f5;
-  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   overflow: hidden;
 }
 
@@ -745,13 +776,24 @@ const scrollToBottom = () => {
   animation: jump 1.4s infinite ease-in-out;
 }
 
-.thinking .dot:nth-child(1) { animation-delay: 0s; }
-.thinking .dot:nth-child(2) { animation-delay: 0.2s; }
-.thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+.thinking .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.thinking .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.thinking .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes jump {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 /* 消息过渡动画 */
@@ -775,7 +817,8 @@ const scrollToBottom = () => {
   margin: 0;
 }
 
-:deep(.bubble ul), :deep(.bubble ol) {
+:deep(.bubble ul),
+:deep(.bubble ol) {
   padding-left: 20px;
   margin: 8px 0;
 }

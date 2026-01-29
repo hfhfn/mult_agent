@@ -13,11 +13,15 @@ from dotenv import load_dotenv
 # 加载环境变量
 load_dotenv()
 
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
+# 设置API Key到全局环境
+os.environ["DASHSCOPE_API_KEY"] = DASHSCOPE_API_KEY
+
 print("\n" + "=" * 60)
 print("案例5: 流式输出 - 实时对话体验")
 print("=" * 60)
-
-os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
 
 # 1. 启用流式输出的模型
 llm = Tongyi(

@@ -13,11 +13,15 @@ from dotenv import load_dotenv
 # 加载环境变量
 load_dotenv()
 
+# --- 环境配置 ---
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
+# 设置API Key到全局环境
+os.environ["DASHSCOPE_API_KEY"] = DASHSCOPE_API_KEY
+
 print("\n" + "=" * 60)
 print("案例3: 多智能体协作 - 专业客服团队")
 print("=" * 60)
-
-os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
 
 # 1. 初始化不同的Qwen实例（模拟不同专家）
 router_llm = Tongyi(model="qwen-turbo", temperature=0.3)  # 路由器：低温度，更确定

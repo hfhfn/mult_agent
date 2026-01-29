@@ -1,72 +1,76 @@
 <script setup>
-import { ref, nextTick } from 'vue'
-import MarkdownIt from 'markdown-it'
+import { ref, nextTick } from "vue";
+import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
   html: false, // 禁用 HTML 以防止 XSS
   linkify: true,
-  breaks: true
-})
+  breaks: true,
+});
 
 const messages = ref([
-  { role: 'ai', content: '你好！我是 MCP 智能助手，可以帮你查询天气、写文件或规划出行路线。' }
-])
-const userInput = ref('')
-const isLoading = ref(false)
-const loadingStatus = ref('')
-const chatContainer = ref(null)
+  {
+    role: "ai",
+    content:
+      "你好！我是 MCP 智能助手，可以帮你查询天气、写文件或规划出行路线。",
+  },
+]);
+const userInput = ref("");
+const isLoading = ref(false);
+const loadingStatus = ref("");
+const chatContainer = ref(null);
 
 const scrollToBottom = async () => {
-  await nextTick()
+  await nextTick();
   if (chatContainer.value) {
-    chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
   }
-}
+};
 
 const sendMessage = async () => {
-  const content = userInput.value.trim()
-  if (!content || isLoading.value) return
+  const content = userInput.value.trim();
+  if (!content || isLoading.value) return;
 
   // 1. 添加用户消息
-  messages.value.push({ role: 'user', content })
-  userInput.value = ''
-  isLoading.value = true
-  loadingStatus.value = '正在思考...'
-  await scrollToBottom()
+  messages.value.push({ role: "user", content });
+  userInput.value = "";
+  isLoading.value = true;
+  loadingStatus.value = "正在思考...";
+  await scrollToBottom();
 
   // 2. 准备 AI 消息占位
-  const aiMessage = { role: 'ai', content: '' }
-  messages.value.push(aiMessage)
+  const aiMessage = { role: "ai", content: "" };
+  messages.value.push(aiMessage);
 
   try {
-    const response = await fetch('http://localhost:8000/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: content })
-    })
+    const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8000";
+    const response = await fetch(`${API_BASE}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: content }),
+    });
 
-    const data = await response.json()
-    
-    if (data.status === 'success') {
-       aiMessage.content = data.content
-    } else if (data.status === 'empty') {
-       aiMessage.content = '(未获取到回复，请重试)'
+    const data = await response.json();
+
+    if (data.status === "success") {
+      aiMessage.content = data.content;
+    } else if (data.status === "empty") {
+      aiMessage.content = "(未获取到回复，请重试)";
     } else {
-       aiMessage.content = `[系统错误: ${data.error || '未知错误'}]`
+      aiMessage.content = `[系统错误: ${data.error || "未知错误"}]`;
     }
-
   } catch (e) {
-    aiMessage.content = `[网络请求出错: ${e.message}]`
+    aiMessage.content = `[网络请求出错: ${e.message}]`;
   } finally {
-    isLoading.value = false
-    loadingStatus.value = ''
-    scrollToBottom()
+    isLoading.value = false;
+    loadingStatus.value = "";
+    scrollToBottom();
   }
-}
+};
 
 const renderMarkdown = (text) => {
-  return md.render(text || '')
-}
+  return md.render(text || "");
+};
 </script>
 
 <template>
@@ -80,24 +84,65 @@ const renderMarkdown = (text) => {
         </div>
         <div class="header-subtitle">Powered by Qwen & MCP</div>
       </div>
-      
+
       <!-- 消息列表 -->
       <div class="messages" ref="chatContainer">
-        <div v-for="(msg, index) in messages" :key="index" :class="['message-row', msg.role]">
+        <div
+          v-for="(msg, index) in messages"
+          :key="index"
+          :class="['message-row', msg.role]"
+        >
           <div class="avatar">
             <span v-if="msg.role === 'ai'">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M4 11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"/><path d="M9 16a2 2 0 1 0 4 0 2 2 0 1 0-4 0"/><path d="M15 7v2"/><path d="M9 7v2"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
+                />
+                <path
+                  d="M4 11a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7z"
+                />
+                <path d="M9 16a2 2 0 1 0 4 0 2 2 0 1 0-4 0" />
+                <path d="M15 7v2" />
+                <path d="M9 7v2" />
+              </svg>
             </span>
             <span v-else>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </span>
           </div>
           <div class="message-bubble">
-            <div v-if="msg.role === 'ai'" class="markdown-body" v-html="renderMarkdown(msg.content)"></div>
+            <div
+              v-if="msg.role === 'ai'"
+              class="markdown-body"
+              v-html="renderMarkdown(msg.content)"
+            ></div>
             <div v-else>{{ msg.content }}</div>
           </div>
         </div>
-        
+
         <!-- 加载状态 -->
         <div v-if="isLoading" class="loading-indicator">
           <div class="dot"></div>
@@ -110,14 +155,28 @@ const renderMarkdown = (text) => {
       <!-- 输入区域 -->
       <div class="input-area">
         <div class="input-box">
-          <input 
-            v-model="userInput" 
+          <input
+            v-model="userInput"
             @keyup.enter="sendMessage"
-            placeholder="输入你的问题..." 
+            placeholder="输入你的问题..."
             :disabled="isLoading"
           />
-          <button @click="sendMessage" :disabled="isLoading || !userInput.trim()" class="send-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button
+            @click="sendMessage"
+            :disabled="isLoading || !userInput.trim()"
+            class="send-btn"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <line x1="22" y1="2" x2="11" y2="13"></line>
               <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
@@ -139,7 +198,7 @@ const renderMarkdown = (text) => {
   padding: 20px;
   box-sizing: border-box;
   /* 浅色网格背景 */
-  background-image: 
+  background-image:
     linear-gradient(rgba(14, 165, 233, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
@@ -158,9 +217,9 @@ const renderMarkdown = (text) => {
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 24px;
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.08), /* 柔和的阴影 */
-    0 0 0 1px rgba(255, 255, 255, 0.5) inset; /* 内发光增强质感 */
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    /* 柔和的阴影 */ 0 0 0 1px rgba(255, 255, 255, 0.5) inset; /* 内发光增强质感 */
   overflow: hidden;
   transition: all 0.3s ease;
   position: relative;
@@ -168,7 +227,7 @@ const renderMarkdown = (text) => {
 
 /* 顶部装饰线 - 保留但变浅 */
 .chat-container::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -205,9 +264,18 @@ const renderMarkdown = (text) => {
 }
 
 @keyframes pulse {
-  0% { opacity: 0.6; transform: scale(0.95); }
-  50% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0.6; transform: scale(0.95); }
+  0% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.6;
+    transform: scale(0.95);
+  }
 }
 
 .chat-header h2 {
@@ -216,7 +284,7 @@ const renderMarkdown = (text) => {
   font-weight: 700;
   color: #1e293b; /* 深灰黑 */
   letter-spacing: -0.5px;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .header-subtitle {
@@ -263,8 +331,14 @@ const renderMarkdown = (text) => {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message-row.user {
@@ -281,7 +355,9 @@ const renderMarkdown = (text) => {
   justify-content: center;
   flex-shrink: 0;
   background: #fff;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .message-row.ai .avatar {
@@ -303,7 +379,7 @@ const renderMarkdown = (text) => {
   line-height: 1.65;
   position: relative;
   word-break: break-word;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
 .message-row.ai .message-bubble {
@@ -330,7 +406,7 @@ const renderMarkdown = (text) => {
   color: #64748b;
   font-size: 0.85rem;
   font-family: monospace;
-  background: rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 20px;
   width: fit-content;
 }
@@ -358,13 +434,15 @@ const renderMarkdown = (text) => {
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   transition: all 0.3s ease;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
 }
 
 .input-box:focus-within {
   background: #fff;
   border-color: #38bdf8;
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15), 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow:
+    0 0 0 4px rgba(56, 189, 248, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 input {
@@ -430,7 +508,7 @@ input::placeholder {
   background: #f1f5f9;
   padding: 2px 6px;
   border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.85em;
   color: #0f172a;
   border: 1px solid #e2e8f0;
